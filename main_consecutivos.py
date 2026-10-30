@@ -9,6 +9,7 @@ y auditoría de certificados e informes bajo ISO/IEC 17025.
 """
 
 import os
+import sys
 import io
 import csv
 from datetime import datetime
@@ -19,9 +20,20 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 
-import servidor_consecutivos.db_consecutivos as db
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+# Soporte de importación dual para despliegue independiente (Render, Cloud Run, Docker)
+# o como módulo dentro de la solución completa
+try:
+    import db_consecutivos as db
+except ImportError:
+    try:
+        import servidor_consecutivos.db_consecutivos as db
+    except ImportError:
+        from . import db_consecutivos as db
+
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 # Inicializar Base de Datos en el arranque
