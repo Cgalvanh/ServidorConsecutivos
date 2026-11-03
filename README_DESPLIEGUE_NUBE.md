@@ -11,13 +11,25 @@ Render permite hospedar microservicios web gratuitos con certificado SSL automá
 
 1. Cree una cuenta gratuita en [render.com](https://render.com).
 2. En el panel principal, haga clic en **New +** y seleccione **Web Service**.
-3. Conecte su repositorio (o suba esta carpeta a GitHub / GitLab).
-4. Configure los parámetros:
-   - **Name:** `cenam-consecutivos-flujo`
-   - **Environment:** `Python 3` (o `Docker`)
+3. Conecte su repositorio de GitHub o GitLab.
+4. Configure los parámetros según cómo subió su repositorio:
+
+   **Si conectó el repositorio del proyecto completo:**
+   - **Root Directory:** `servidor_consecutivos`
+   - **Environment:** `Python 3`
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `uvicorn main_consecutivos:app --host 0.0.0.0 --port $PORT`
    - **Plan:** Free
+
+   *(Nota: Si prefiere dejar el campo **Root Directory** vacío, use:)*
+   - **Build Command:** `pip install -r servidor_consecutivos/requirements.txt`
+   - **Start Command:** `uvicorn servidor_consecutivos.main_consecutivos:app --host 0.0.0.0 --port $PORT`
+
+   **Si subió únicamente la carpeta `servidor_consecutivos` como repositorio independiente:**
+   - **Root Directory:** (dejar en blanco)
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn main_consecutivos:app --host 0.0.0.0 --port $PORT`
+
 5. Haga clic en **Deploy Web Service**.
 6. Render le proporcionará una URL pública segura, por ejemplo:
    `https://cenam-consecutivos-flujo.onrender.com`

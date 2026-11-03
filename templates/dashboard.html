@@ -272,24 +272,35 @@
                 </div>
                 <div class="modal-body p-4">
                     
-                    <!-- Sección 1: Ajuste de Consecutivos Siguientes -->
-                    <h6 class="fw-bold text-primary mb-3">
-                        <i class="bi bi-123 me-1"></i> Control de Consecutivos Iniciales / Actuales
-                    </h6>
+                    <!-- Sección 1: Ajuste de Consecutivos Siguientes por Área -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-primary mb-0">
+                            <i class="bi bi-123 me-1"></i> Control de Consecutivos por Área Metrológica
+                        </h6>
+                    </div>
                     <div class="row g-3 mb-4 bg-light p-3 rounded-3 border">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <label class="form-label fs-8 fw-bold text-muted mb-0">Código de Área:</label>
+                                <input type="text" class="form-control form-control-sm font-monospace fw-bold text-center" id="inputAjusteArea" value="740" style="width: 90px;" oninput="actualizarPrefijosArea(this.value)">
+                                <span class="fs-9 text-muted">Cada código de área (ej. 740 = Eléctrica, 730 = Flujo y Volumen) tiene su propia serie independiente de folios.</span>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label fs-8 fw-bold text-muted">Siguiente Consecutivo Certificados (CC):</label>
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-white font-monospace">CNM-CC-PR-740-</span>
+                                <span class="input-group-text bg-white font-monospace" id="labelPrefijoCC">CNM-CC-PR-740-</span>
                                 <input type="number" class="form-control font-monospace fw-bold" id="inputAjusteCC" value="{{ sig_cc }}">
+                                <span class="input-group-text bg-light text-muted font-monospace">/2026</span>
                                 <button class="btn btn-outline-primary" type="button" onclick="guardarConsecutivo('CC')">Guardar</button>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fs-8 fw-bold text-muted">Siguiente Consecutivo Informes (IM):</label>
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-white font-monospace">CNM-IM-PR-740-</span>
+                                <span class="input-group-text bg-white font-monospace" id="labelPrefijoIM">CNM-IM-PR-740-</span>
                                 <input type="number" class="form-control font-monospace fw-bold" id="inputAjusteIM" value="{{ sig_im }}">
+                                <span class="input-group-text bg-light text-muted font-monospace">/2026</span>
                                 <button class="btn btn-outline-info" type="button" onclick="guardarConsecutivo('IM')">Guardar</button>
                             </div>
                         </div>
@@ -371,7 +382,14 @@
             c.classList.toggle('d-none');
         }
 
+        function actualizarPrefijosArea(area) {
+            const a = (area || '740').trim();
+            document.getElementById('labelPrefijoCC').textContent = `CNM-CC-PR-${a}-`;
+            document.getElementById('labelPrefijoIM').textContent = `CNM-IM-PR-${a}-`;
+        }
+
         async function guardarConsecutivo(tipo) {
+            const area = (document.getElementById('inputAjusteArea').value || '740').trim();
             const val = tipo === 'CC' ? document.getElementById('inputAjusteCC').value : document.getElementById('inputAjusteIM').value;
             try {
                 const resp = await fetch('/api/v1/admin/ajustar-consecutivo', {
@@ -379,14 +397,14 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         tipo_documento: tipo,
-                        area_codigo: '740',
+                        area_codigo: area,
                         ano: 2026,
                         nuevo_valor: parseInt(val)
                     })
                 });
                 const data = await resp.json();
                 if (data.success) {
-                    alert('Consecutivo actualizado exitosamente.');
+                    alert(`Consecutivo de ${tipo} para el Área ${area} actualizado exitosamente.`);
                     location.reload();
                 } else {
                     alert('Error: ' + data.error);
